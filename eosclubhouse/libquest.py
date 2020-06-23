@@ -2453,7 +2453,8 @@ class InkQuest(Quest):
     __ink_quest_id__ = ''
     '''ID of the Ink quest to load, by filename convention.'''
 
-    _confirm_label = '❯'
+    __confirm_label__ = '❯'
+    '''This is the button label used to go to the next line.'''
 
     def __init__(self):
         self._ink_quest = None
@@ -2509,7 +2510,6 @@ class InkQuest(Quest):
 
     def setup(self):
         self._ink_quest = Libquest.load_quest(self.__ink_quest_id__)
-        logger.debug('GLOBAL TAGS?: %s', self._ink_quest.globalTags)
 
     def _update_dialogue_choices(self):
         self._dialogue, choices = self._ink_quest.continueStory()
@@ -2520,7 +2520,7 @@ class InkQuest(Quest):
             return (c['text'], self.step_continue, c['index'])
 
         if not choices:
-            return [(self._confirm_label, self.step_complete_and_stop)]
+            return [(self.__confirm_label__, self.step_complete_and_stop)]
 
         self._waiters_info = []
         converted_choices = []
@@ -2529,11 +2529,17 @@ class InkQuest(Quest):
             if c['text'] == '(wait for app launch)':
                 self._waiters_info.append((self.connect_wait_for_app_launch, [], c['index']))
             elif c['text'] == '(wait for clubhouse: current-page)':
-                self._waiters_info.append((self.connect_clubhouse_changes, [['current-page']], c['index']))
+                self._waiters_info.append((self.connect_clubhouse_changes,
+                                           [['current-page']], c['index']))
             else:
                 converted_choices.append(convert_choice(c))
 
         return converted_choices
+
+    def _extract_triggers_from_tags(self, tags):
+        # FIXME: trigger things like give_app_icon
+        triggers = []
+        return triggers
 
     def step_begin(self):
         self._ink_quest.restart()
@@ -2541,14 +2547,11 @@ class InkQuest(Quest):
         return self.step_continue
 
     def step_continue(self, choice_index=None):
-        logger.debug('STEP_CONTINUE index: %s', choice_index)
-
         if choice_index is not None:
             self._ink_quest.choose(choice_index)
             self._update_dialogue_choices()
 
         if not self._dialogue and self._ink_quest.hasEnded:
-            logger.debug('ENDED')
             self.step_complete_and_stop()
             return
 
@@ -2558,7 +2561,7 @@ class InkQuest(Quest):
         if not self._dialogue:
             choices = self._choices
         else:
-            choices = [(self._confirm_label, self.step_continue)]
+            choices = [(self.__confirm_label__, self.step_continue)]
 
         self._show_message({
             'parsed_text': dialogue['text'],
@@ -2566,12 +2569,16 @@ class InkQuest(Quest):
             'choices': choices,
         })
 
+        for trigger in self._extract_triggers_from_tags(dialogue['tags']):
+            trigger()
+
         if not self._dialogue and self._waiters_info:
             actions_by_index = {}
             for waiter, args, i in self._waiters_info:
                 async_action = waiter(*args)
                 actions_by_index[i] = async_action
 
+            # FIXME add the wait for message here?
             self.wait_for_one(actions_by_index.values())
 
             for i, async_action in actions_by_index.items():
