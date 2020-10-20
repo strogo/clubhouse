@@ -121,11 +121,11 @@ class _AchievementsManager(GObject.Object):
 
     def _record_points(self, skillset, points):
         payload = (skillset, points, self._points_per_skillset[skillset])
-        metrics.record(metrics.ACHIEVEMENT_POINTS_EVENT, payload)
+        metrics.record('ACHIEVEMENT_POINTS', payload)
 
     def _record_achievement(self, skillset, achievement):
         payload = (achievement.id, achievement.name)
-        metrics.record(metrics.ACHIEVEMENT_EVENT, payload)
+        metrics.record('ACHIEVEMENT', payload)
 
     def _get_empty_state_achievement(self):
         return self._empty_state_achievement

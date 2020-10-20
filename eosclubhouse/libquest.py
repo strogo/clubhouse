@@ -787,13 +787,13 @@ class _Quest(GObject.GObject):
         pathways = [i.get_name() for i in self.get_pathways()]
         key = self.get_name()
         payload = (self.complete, self.get_id(), pathways)
-        metrics.record_start(metrics.QUEST_EVENT, key, payload)
+        metrics.record_start('QUEST', key, payload)
 
     def _stop_record_metrics(self):
         pathways = [i.get_name() for i in self.get_pathways()]
         key = self.get_name()
         payload = (self.complete, self.get_id(), pathways)
-        metrics.record_stop(metrics.QUEST_EVENT, key, payload)
+        metrics.record_stop('QUEST', key, payload)
 
         # recording quest completeness and a single event because right now
         # azafea doesn't store the progress stop event
@@ -803,7 +803,7 @@ class _Quest(GObject.GObject):
             "pathways": pathways,
             "progress": Registry.get_current_episode_progress() * 100,
         }
-        metrics.record(metrics.PROGRESS_UPDATE_EVENT, payload)
+        metrics.record('PROGRESS_UPDATE', payload)
 
     def run(self, on_quest_finished):
         assert hasattr(self, 'step_begin'), ('Quests need to declare a "step_begin" method, in '

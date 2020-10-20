@@ -20,7 +20,6 @@
 #
 
 import gi
-gi.require_version('EosMetrics', '0')
 gi.require_version("Gdk", "3.0")
 gi.require_version('GdkPixbuf', '2.0')
 gi.require_version("Gtk", "3.0")
@@ -1710,7 +1709,7 @@ class ClubhouseViewMainLayer(Gtk.Fixed):
         self._app_window.set_page('CHARACTER')
 
         character = quest_set.get_character()
-        metrics.record(metrics.CLUBHOUSE_PATHWAY_ENTER_EVENT, character)
+        metrics.record('CLUBHOUSE_PATHWAY_ENTER', character)
 
 
 class FixedLabel(Gtk.Label):
@@ -1782,7 +1781,7 @@ class NewsItem(Gtk.Box):
         if data.scheme == 'quest':
             # quest://questname
             payload = (self._character, data.netloc)
-            metrics.record(metrics.CLUBHOUSE_NEWS_QUEST_LINK_EVENT, payload)
+            metrics.record('CLUBHOUSE_NEWS_QUEST_LINK', payload)
 
             self.emit('run-quest', data.netloc)
             return True
@@ -2486,7 +2485,7 @@ class ClubhouseWindow(Gtk.ApplicationWindow):
         self._stack.set_visible_child(page)
         self.hide_achievements_view()
 
-        metrics.record(metrics.CLUBHOUSE_SET_PAGE_EVENT, new_page)
+        metrics.record('CLUBHOUSE_SET_PAGE', new_page)
 
     def _select_main_page_on_timeout(self):
         self.set_page('CLUBHOUSE')
@@ -3425,7 +3424,7 @@ class ClubhouseApplication(Gtk.Application):
             self._window.set_page('CHARACTER')
             self._show_and_focus_window()
 
-            metrics.record(metrics.CLUBHOUSE_PATHWAY_ENTER_EVENT, arg_variant)
+            metrics.record('CLUBHOUSE_PATHWAY_ENTER', arg_variant)
 
     def _visibility_notify_cb(self, window, pspec):
         if self._window.is_visible():
