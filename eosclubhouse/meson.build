@@ -33,6 +33,12 @@ conf.set_quoted(
     join_paths(clubhouse_data_dir, 'tools', 'eos-hack-app-installed')
 )
 
+if get_option('eosmetrics')
+    conf.set('use_eos_metrics', 'True')
+else
+    conf.set('use_eos_metrics', 'False')
+endif
+
 configure_file(
     input: 'config.py.in',
     output: 'config.py',

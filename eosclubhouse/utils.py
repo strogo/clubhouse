@@ -389,16 +389,31 @@ def get_flatpak_sandbox():
     return sandbox
 
 
+def get_variant_signature(variant):
+    if isinstance(variant, bool):
+        return 'b'
+
+    if isinstance(variant, str):
+        return 's'
+
+    if isinstance(variant, tuple):
+        signature = '('
+        for v in variant:
+            signature += get_variant_signature(v)
+        signature += ')'
+        return signature
+
+    if isinstance(variant, list):
+        signature = 'a' + get_variant_signature(variant[0])
+        return signature
+
+    raise TypeError('Error: value is not a basic type')
+
+
 def convert_variant_arg(variant):
     """Convert Python object to GLib.Variant"""
     if isinstance(variant, GLib.Variant):
         return variant
-
-    if isinstance(variant, bool):
-        return GLib.Variant('b', variant)
-
-    if isinstance(variant, str):
-        return GLib.Variant('s', variant)
 
     if isinstance(variant, dict):
         try:
@@ -408,7 +423,7 @@ def convert_variant_arg(variant):
             raise TypeError('Error: the given Python dict can\'t be '
                             'converted to json or GLib.Variant')
 
-    raise TypeError('Error: value is not a Python dict or GLib.Variant')
+    return GLib.Variant(get_variant_signature(variant), variant)
 
 
 def triangle_area(a, b, c):

@@ -8,3 +8,9 @@ option('run-lint',
        type: 'boolean',
        value: true
 )
+
+option('eosmetrics',
+       description: 'whether to use eosmetrics or not',
+       type: 'boolean',
+       value: true
+)

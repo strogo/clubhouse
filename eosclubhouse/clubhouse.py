@@ -36,7 +36,7 @@ import datetime
 import copy
 
 from collections import OrderedDict
-from gi.repository import EosMetrics, Gdk, GdkPixbuf, Gio, GLib, Gtk, \
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, \
     GObject, Json, Pango
 from eosclubhouse import config, logger, libquest, utils
 from eosclubhouse.achievements import AchievementsDB
@@ -48,15 +48,11 @@ from eosclubhouse.utils import ClubhouseState, Performance, \
     get_alternative_quests_dir
 from eosclubhouse.animation import Animation, AnimationImage, AnimationSystem, Animator, \
     get_character_animation_dirs
+from eosclubhouse import metrics
 
 from eosclubhouse.widgets import FixedLayerGroup, ScalableImage, gtk_widget_add_custom_css_provider
 
 from urllib.parse import urlparse
-
-# Metrics event ids
-CLUBHOUSE_NEWS_QUEST_LINK_EVENT = 'ebffecb9-7b31-4c30-a9a0-f896aaaa5b4f'
-CLUBHOUSE_SET_PAGE_EVENT = '2c765b36-a4c9-40ee-b313-dc73c4fa1f0d'
-CLUBHOUSE_PATHWAY_ENTER_EVENT = '600c1cae-b391-4cb4-9930-ea284792fdfb'
 
 
 CLUBHOUSE_NAME = 'com.hack_computer.Clubhouse'
@@ -1713,9 +1709,8 @@ class ClubhouseViewMainLayer(Gtk.Fixed):
         self._app_window.character.show_mission_list(quest_set)
         self._app_window.set_page('CHARACTER')
 
-        recorder = EosMetrics.EventRecorder.get_default()
-        character = GLib.Variant('s', quest_set.get_character())
-        recorder.record_event(CLUBHOUSE_PATHWAY_ENTER_EVENT, character)
+        character = quest_set.get_character()
+        metrics.record(metrics.CLUBHOUSE_PATHWAY_ENTER_EVENT, character)
 
 
 class FixedLabel(Gtk.Label):
@@ -1786,9 +1781,8 @@ class NewsItem(Gtk.Box):
         data = urlparse(uri)
         if data.scheme == 'quest':
             # quest://questname
-            recorder = EosMetrics.EventRecorder.get_default()
-            variant = GLib.Variant('(ss)', (self._character, data.netloc))
-            recorder.record_event(CLUBHOUSE_NEWS_QUEST_LINK_EVENT, variant)
+            payload = (self._character, data.netloc)
+            metrics.record(metrics.CLUBHOUSE_NEWS_QUEST_LINK_EVENT, payload)
 
             self.emit('run-quest', data.netloc)
             return True
@@ -2492,9 +2486,7 @@ class ClubhouseWindow(Gtk.ApplicationWindow):
         self._stack.set_visible_child(page)
         self.hide_achievements_view()
 
-        recorder = EosMetrics.EventRecorder.get_default()
-        page_variant = GLib.Variant('s', new_page)
-        recorder.record_event(CLUBHOUSE_SET_PAGE_EVENT, page_variant)
+        metrics.record(metrics.CLUBHOUSE_SET_PAGE_EVENT, new_page)
 
     def _select_main_page_on_timeout(self):
         self.set_page('CLUBHOUSE')
@@ -3433,8 +3425,7 @@ class ClubhouseApplication(Gtk.Application):
             self._window.set_page('CHARACTER')
             self._show_and_focus_window()
 
-            recorder = EosMetrics.EventRecorder.get_default()
-            recorder.record_event(CLUBHOUSE_PATHWAY_ENTER_EVENT, arg_variant)
+            metrics.record(metrics.CLUBHOUSE_PATHWAY_ENTER_EVENT, arg_variant)
 
     def _visibility_notify_cb(self, window, pspec):
         if self._window.is_visible():
