@@ -218,7 +218,6 @@ def _get_matomo_data():
         'idsite': config.MATOMO_SITE_ID,
         'rec': '1',
         'apiv': '1',
-        'url': '',
         '_id': unique_visitor_id(),
         'rand': ''.join(random.sample(string.ascii_letters, k=20)),
         'h': now.hour,
@@ -228,28 +227,45 @@ def _get_matomo_data():
     return data
 
 
+def _build_fake_url(data, base='https://hack-computer.com/'):
+    if isinstance(data, tuple) or isinstance(data, list):
+        values = [_build_fake_url(v, base='') for v in data]
+        return base + '/'.join(values)
+
+    if isinstance(data, dict):
+        return base + '?' + urllib.parse.urlencode(data)
+
+    return base + str(data)
+
+
 def record_matomo_metrics(event, payload):
+    base = f'https://hack-computer.com/{event}/'
     data = {
         **_get_matomo_data(),
         'action_name': event,
         'cvar': json.dumps(payload),
+        'url': _build_fake_url(payload, base),
     }
     threading.Thread(target=_record_matomo, args=(data, )).start()
 
 
 def record_matomo_start(event, key, payload):
+    base = f'https://hack-computer.com/{event}/{key}/'
     data = {
         **_get_matomo_data(),
-        'action_name': f'{event}_{key}_START',
+        'action_name': f'{event}_START',
         'cvar': json.dumps(payload),
+        'url': _build_fake_url(payload, base=base),
     }
     threading.Thread(target=_record_matomo, args=(data, )).start()
 
 
 def record_matomo_stop(event, key, payload):
+    base = f'https://hack-computer.com/{event}/{key}/'
     data = {
         **_get_matomo_data(),
-        'action_name': f'{event}_{key}_STOP',
+        'action_name': f'{event}_STOP',
         'cvar': json.dumps(payload),
+        'url': _build_fake_url(payload, base=base),
     }
     threading.Thread(target=_record_matomo, args=(data, )).start()
