@@ -42,6 +42,9 @@ DEFAULTS = {
     'clubhouse': {
         'run_lint': True,
         'run_tests': True,
+        'eosmetrics': True,
+        'matomo_host': 'http://matomo.test.endlessos.org',
+        'matomo_site': '1',
         'build_args': [ '--share=network' ],
     },
 }

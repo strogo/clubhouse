@@ -253,6 +253,9 @@
             },
             "config-opts" : [
                 "-Dsession-bus-services-dir=/app/share/dbus-1/services",
+                "-Deosmetrics=${CLUBHOUSE_EOSMETRICS}",
+                "-Dmatomo-host=${CLUBHOUSE_MATOMO_HOST}",
+                "-Dmatomo-site=${CLUBHOUSE_MATOMO_SITE}",
                 "-Drun-lint=${CLUBHOUSE_RUN_LINT}"
             ],
             "run-tests": ${CLUBHOUSE_RUN_TESTS},

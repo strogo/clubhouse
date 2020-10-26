@@ -79,6 +79,9 @@ clubhouse = .
 
 # run_lint = yes
 # run_tests = yes
+# eosmetrics = yes
+# matomo_host = http://matomo.test.endlessos.org
+# matomo_site = 1
 
 [Advanced]
 
