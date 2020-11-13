@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 from eosclubhouse.libquest import Quest
+from eosclubhouse import config
+import os
 
 
 class Inspector1(Quest):
@@ -37,31 +39,36 @@ class Inspector1(Quest):
     def step_launch(self):
         if self.is_cancelled():
             return self.step_abort()
-        self.deploy_file('Inspector/base.css',
-                         '~/Documents/WebSources/Inspector/', override=True)
-        self.deploy_file('Inspector/index.html',
-                         '~/Documents/WebSources/Inspector/', override=True)
-        self.deploy_file('Inspector/cats.html',
-                         '~/Documents/WebSources/Inspector/', override=True)
-        self.deploy_file('Inspector/nyancat.html',
-                         '~/Documents/WebSources/Inspector/', override=True)
-        self.deploy_file('Inspector/nyancat.mp3',
-                         '~/Documents/WebSources/Inspector/', override=True)
-        self.deploy_file('Inspector/img/morse.png',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/biel-morro-unsplash.jpg',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/alexander-london-unsplash.jpg',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/markus-spiske-unsplash-cropped.jpg',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/thomas-kelley-unsplash-cropped.jpg',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/kimberly-farmer-unsplash-cropped.jpg',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.deploy_file('Inspector/img/nyancat.webp',
-                         '~/Documents/WebSources/Inspector/img/', override=True)
-        self.open_url_in_browser('file://~/Documents/WebSources/Inspector/index.html')
+        # self.deploy_file('Inspector/base.css',
+        #                  '~/Documents/WebSources/Inspector/', override=True)
+        # self.deploy_file('Inspector/index.html',
+        #                  '~/Documents/WebSources/Inspector/', override=True)
+        # self.deploy_file('Inspector/cats.html',
+        #                  '~/Documents/WebSources/Inspector/', override=True)
+        # self.deploy_file('Inspector/nyancat.html',
+        #                  '~/Documents/WebSources/Inspector/', override=True)
+        # self.deploy_file('Inspector/nyancat.mp3',
+        #                  '~/Documents/WebSources/Inspector/', override=True)
+        # self.deploy_file('Inspector/img/morse.png',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/biel-morro-unsplash.jpg',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/alexander-london-unsplash.jpg',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/markus-spiske-unsplash-cropped.jpg',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/thomas-kelley-unsplash-cropped.jpg',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/kimberly-farmer-unsplash-cropped.jpg',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+        # self.deploy_file('Inspector/img/nyancat.webp',
+        #                  '~/Documents/WebSources/Inspector/img/', override=True)
+
+        # path = 'file://' + os.path.expanduser('~/Documents/WebSources/Inspector/index.html')
+        path = os.path.join(config.QUESTS_FILES_DIR, 'Inspector', 'index')
+        gio_path = f'file://{path}.html'
+        self.open_url_in_browser(gio_path)
+
         return self.step_main_loop
 
     def step_main_loop(self, message_index=0):
